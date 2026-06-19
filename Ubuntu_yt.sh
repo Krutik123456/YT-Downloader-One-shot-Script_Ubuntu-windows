@@ -98,6 +98,46 @@ ask_quality() {
   fi
 }
 
+ask_subs() {
+  echo
+  echo -e "${YELLOW}📝 Download subtitles/captions?${NC}"
+  echo -n -e "${CYAN}Download subtitles? [y/N]: ${NC}"
+  read -r SUB_CHOICE
+  SUB_DOWNLOAD=false
+  SUB_LANG="en"
+  SUB_EMBED=false
+  SUB_AUTO=false
+
+  case "${SUB_CHOICE,,}" in
+    y|yes)
+      SUB_DOWNLOAD=true
+      echo
+      echo -e "${YELLOW}🌐 Subtitle language code (e.g., en, es, fr, de, ja):${NC}"
+      echo -n -e "${CYAN}Language [en]: ${NC}"
+      read -r SUB_LANG_INPUT
+      [[ -n "$SUB_LANG_INPUT" ]] && SUB_LANG="$SUB_LANG_INPUT"
+
+      echo
+      echo -e "${YELLOW}📦 Embed subtitles into the video file?${NC}"
+      echo -e "     (embedded subs always visible; separate files are portable)"
+      echo -n -e "${CYAN}Embed? [y/N]: ${NC}"
+      read -r SUB_EMBED_CHOICE
+      case "${SUB_EMBED_CHOICE,,}" in
+        y|yes) SUB_EMBED=true ;;
+      esac
+
+      echo
+      echo -e "${YELLOW}🤖 Include auto-generated captions? (if manual subs unavailable)${NC}"
+      echo -n -e "${CYAN}Include auto-captions? [Y/n]: ${NC}"
+      read -r SUB_AUTO_CHOICE
+      case "${SUB_AUTO_CHOICE,,}" in
+        n|no) SUB_AUTO=false ;;
+        *)     SUB_AUTO=true ;;
+      esac
+      ;;
+  esac
+}
+
 confirm_download() {
   local display_quality
   [[ "$FORMAT" == "mp3" ]] && display_quality="${QUALITY}k" || display_quality="$QUALITY"
@@ -144,6 +184,13 @@ do_download() {
     -o "$BASE_DIR/%(playlist_title|UNKNOWN)s/%(playlist_index)s - %(title)s.%(ext)s"
   )
 
+  # Subtitles
+  if [[ "$SUB_DOWNLOAD" == true ]]; then
+    args+=(--write-subs --sub-langs "$SUB_LANG")
+    [[ "$SUB_AUTO" == true ]] && args+=(--write-auto-subs)
+    [[ "$SUB_EMBED" == true ]] && args+=(--embed-subs)
+  fi
+
   echo
   echo -e "${GREEN}[↓] Downloading...${NC}"
   echo
@@ -166,6 +213,7 @@ check_deps
 ask_url
 ask_format
 ask_quality
+ask_subs
 confirm_download
 do_download
 
