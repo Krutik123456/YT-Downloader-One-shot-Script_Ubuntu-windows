@@ -107,6 +107,37 @@ function Ask-Quality {
     }
 }
 
+function Ask-Subs {
+    Write-Host
+    Write-Host "📝 Download subtitles/captions?" -ForegroundColor Yellow
+    $subChoice = Read-Host "Download subtitles? [y/N]"
+    $script:SubDownload = $false
+    $script:SubLang = "en"
+    $script:SubEmbed = $false
+    $script:SubAuto = $true
+
+    if ($subChoice -match '^(y|yes)$') {
+        $script:SubDownload = $true
+
+        Write-Host
+        $langInput = Read-Host "🌐 Subtitle language code (e.g., en, es, fr, de, ja) [en]"
+        if (-not [string]::IsNullOrWhiteSpace($langInput)) {
+            $script:SubLang = $langInput
+        }
+
+        Write-Host
+        Write-Host "📦 Embed subtitles into the video file?" -ForegroundColor Yellow
+        Write-Host "    (embedded subs always visible; separate files are portable)"
+        $embedChoice = Read-Host "Embed? [y/N]"
+        $script:SubEmbed = $embedChoice -match '^(y|yes)$'
+
+        Write-Host
+        Write-Host "🤖 Include auto-generated captions? (if manual subs unavailable)" -ForegroundColor Yellow
+        $autoChoice = Read-Host "Include auto-captions? [Y/n]"
+        $script:SubAuto = $autoChoice -notmatch '^(n|no)$'
+    }
+}
+
 function Confirm-Download {
     $displayQuality = if ($script:Format -eq "mp3") { "${script:Quality}k" } else { $script:Quality }
 
@@ -152,6 +183,13 @@ function Do-Download {
         "-o", "$BaseDir\%%(playlist_title|UNKNOWN)s\%%(playlist_index)s - %%(title)s.%%(ext)s"
     ))
 
+    # Subtitles
+    if ($script:SubDownload) {
+        $argsList.AddRange(@("--write-subs", "--sub-langs", $script:SubLang))
+        if ($script:SubAuto) { $argsList.Add("--write-auto-subs") }
+        if ($script:SubEmbed) { $argsList.Add("--embed-subs") }
+    }
+
     Write-Host
     Write-Host "[↓] Downloading..." -ForegroundColor Green
     Write-Host
@@ -181,6 +219,7 @@ Check-Deps
 Ask-Url
 Ask-Format
 Ask-Quality
+Ask-Subs
 Confirm-Download
 Do-Download
 
