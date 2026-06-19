@@ -17,6 +17,7 @@ Supports **single videos** and **full playlists** with automatic file numbering,
 | ⚡ **Quality picker** | MP3: 128k / 192k / 320k — MP4: 360p → 1080p → Best |
 | 🖼️ **Thumbnails** | Embedded into every downloaded file |
 | 🧾 **Metadata** | Title, artist, album tags from YouTube |
+| 📝 **Subtitles** | Optional — download manual + auto-generated captions, embed or keep separate |
 | 🚫 **No overwrites** | Already-downloaded files are skipped automatically |
 | 📂 **Organised output** | `~/Documents/yt-downloader/<title>/<N> - <name>.mp4` |
 
@@ -24,8 +25,8 @@ Supports **single videos** and **full playlists** with automatic file numbering,
 
 ## Scripts
 
-- **`yt.sh`** — Bash (Linux, macOS, WSL, Git Bash)
-- **`yt.ps1`** — PowerShell (Windows)
+- **`Ubuntu_yt.sh`** — Bash (Linux, macOS, WSL, Git Bash)
+- **`Windows_yt.ps1`** — PowerShell (Windows)
 
 ---
 
@@ -61,10 +62,10 @@ winget install ffmpeg          # or scoop/choco
 
 ```bash
 # Direct
-bash ~/Documents/yt-downloader/yt.sh
+bash ~/Documents/yt-downloader/Ubuntu_yt.sh
 
 # Or with alias (add to ~/.bash_aliases or ~/.zshrc)
-alias yt='bash ~/Documents/yt-downloader/yt.sh'
+alias yt='bash ~/Documents/yt-downloader/Ubuntu_yt.sh'
 yt
 ```
 
@@ -72,10 +73,10 @@ yt
 
 ```powershell
 # Run from PowerShell
-.\Documents\yt-downloader\yt.ps1
+.\Documents\yt-downloader\Windows_yt.ps1
 
 # Or one-shot from cmd
-powershell -ExecutionPolicy Bypass -File "%USERPROFILE%\Documents\yt-downloader\yt.ps1"
+powershell -ExecutionPolicy Bypass -File "%USERPROFILE%\Documents\yt-downloader\Windows_yt.ps1"
 ```
 
 ### What you'll see
@@ -94,7 +95,7 @@ powershell -ExecutionPolicy Bypass -File "%USERPROFILE%\Documents\yt-downloader\
   2) MP4  — video + audio
 ```
 
-Answer three prompts and it downloads — that's it.
+Answer format, quality, then optionally configure subtitles. Press Enter and it downloads — that's it.
 
 ---
 
@@ -102,11 +103,12 @@ Answer three prompts and it downloads — that's it.
 
 ```
 ~/Documents/yt-downloader/
-├── yt.sh
-├── yt.ps1
+├── Ubuntu_yt.sh
+├── Windows_yt.ps1
 ├── README.md
 ├── My Video Title/
-│   └── My Video Title.mp4
+│   ├── My Video Title.mp4
+│   └── My Video Title.en.vtt          # (if subtitles enabled)
 └── My Playlist/
     ├── 1 - First Song.mp3
     ├── 2 - Second Song.mp3
@@ -128,6 +130,10 @@ The script wraps [yt-dlp](https://github.com/yt-dlp/yt-dlp) — the most powerfu
 | `--add-metadata` | Add title/artist tags |
 | `--no-overwrites` | Skip existing files |
 | `--ignore-errors` | Continue on errors (playlists) |
+| `--write-subs` | Download subtitle files (.vtt / .srt) |
+| `--write-auto-subs` | Include YouTube auto-generated captions |
+| `--sub-langs en` | Language filter for subtitles |
+| `--embed-subs` | Merge subtitles into the video file (mp4/mkv) |
 
 ---
 
